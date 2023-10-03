@@ -566,6 +566,21 @@ input[type=number] {
   margin-top: 0.5rem;
 }
 
+.modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 0.2rem;
+  border-bottom: $border-width solid $border-color;
+  background-color: $bg5;
+  font-size: 0.75rem;
+}
+
+.modal-footer {
+  border-top: $border-width solid $border-color;
+  padding: 0.2rem;
+}
+
 .modal-content {
   color: $fg2;
   background-color: $bg4;
@@ -573,6 +588,14 @@ input[type=number] {
   border-radius: 0px !important;
   box-shadow: 2px 2px 4px 0 rgba(0, 0, 0, 0.2);
   text-align: center;
+  white-space: pre-wrap;
+}
+
+.modal-title {
+  margin-bottom: 0;
+  line-height: 1.5;
+  margin: auto;
+  margin-left: 0.3rem;
 }
 
 .table {

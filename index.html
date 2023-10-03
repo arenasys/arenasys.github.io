@@ -11,10 +11,16 @@
     <title>qDiffusion Web</title>
   </head>
   <body>
-    <div id="error-modal" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="errorModal" aria-hidden="true">
-      <div class="modal-dialog modal-sm">
-        <div class="modal-content" id="error-label">
-          ...
+
+    <div class="modal fade" id="error-modal" tabindex="-1" role="dialog" aria-labelledby="error-model-title" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h6 class="modal-title" id="error-model-title">Error</h5>
+          </div>
+          <div class="modal-body" id="error-label">
+            ...
+          </div>
         </div>
       </div>
     </div>
@@ -186,6 +192,13 @@
       $("#seed").val("");
     }
 
+    function glow(id, type) {
+      $(id).addClass(type);
+      setTimeout(function() {
+        $(id).removeClass(type);
+      },1000);
+    }
+
     async function setModels(models) {
       var current = $("#model option:selected").text()
       $('#model option').remove();
@@ -215,6 +228,21 @@
       $("#status-progress").css("width", progress + "%");
     }
 
+
+    function showError(title, error) {
+      $("#error-label").html(error);
+      $("#error-model-title").html(title);
+      $("#error-modal").modal("show");
+    }
+
+    function setErrorMessage(message) {
+      var stage = $("#status-text").text()
+      setStatusProgress(0);
+      setStatusMode("error")
+      setStatusMessage("Errored")
+      showError("Error while " + stage, message)
+    }
+
   </script>
   <script type="module" src="/assets/js/scheme.mjs"></script>
   <script type="module">
@@ -223,27 +251,6 @@
     var ws
     var key
     var models
-
-    function getSelected(a) {
-      return a.options[a.selectedIndex].text
-    }
-
-    function showError(error) {
-      $("#error-label").text(error);
-      $("#error-modal").modal("show");
-    }
-
-    function glow(id, type) {
-      $(id).addClass(type);
-      setTimeout(function() {
-        $(id).removeClass(type);
-      },1000);
-    }
-
-    function buildRequest() {
-      request = {}
-      return request
-    }
 
     async function sendMessage(msg) {
       msg.id = Math.floor(Math.random() * 1000000) + 1
@@ -276,6 +283,11 @@
           setStatusMode("working")
           setStatusMessage(data.message);
           break;
+        case "error":
+          setErrorMessage(data.message);
+          break;
+        default:
+          console.log(msg)
       }
 
       if(result != null) {
@@ -391,11 +403,18 @@
 
     $("#generate").on("click", async function () { await doGenerate(); });
 
+    $("#error-modal").on("hidden.bs.modal", function (e) {
+      if(ws == undefined || ws.readyState != 1) {
+        switchConnected(false)
+      } else {
+        switchConnected(true)
+      }
+    })
+
     $(document).ready(function() {
       const params = new URLSearchParams(window.location.search);
       const endpoint = params.get("endpoint");
       const password = params.get("password");
-      console.log(endpoint, password)
       if(password) {
         $("#password").val(password);
       }
