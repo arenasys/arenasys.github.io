@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    
+    <title>prototype</title>
+  </head>
+  <body>
+    <div id="error-modal" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="errorModal" aria-hidden="true">
+      <div class="modal-dialog modal-sm">
+        <div class="modal-content" id="error-label">
+          ...
+        </div>
+      </div>
+    </div>
+
+    <div class="base-container">
+      <div class="outputs">
+        <div class="mid structure">
+          <div class="mid-lower structure">
+            <button type="button" class="btn btn-outline-secondary btn-normal" id="generate" disabled>Generate</button>
+            <div class="image-holder">
+              <img class="image" id="result">
+            </div>
+            <div class="status-bar status-error" id="status-bar">
+              <div class="progress status-progress">
+                <div class="progress-bar" id="status-progress" role="progressbar" style="width: 0%;"></div>
+              </div>
+              <div class="status-text" id="status-text">Disconnected</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="parameters">
+        <div class="column structure">
+          <div class="input-group input-group-sm mb-2">
+            <div class="input-group-prepend prompt-tab-row">
+              <span class="input-group-text custom-tab" id="prompt-button" onclick="switchPrompt(true);">Prompt</span>
+              <span style="width:2px"></span>
+              <span class="input-group-text custom-tab disabled" id="negative-prompt-button" onclick="switchPrompt(false);">Negative</span>
+            </div>
+            <textarea class="prompt" placeholder="Prompt..." id="prompt"></textarea>
+            <textarea class="prompt hidden" placeholder="Negative Prompt..." id="negative-prompt"></textarea>
+          </div>
+          <div class="input-group input-group-sm mb-2">
+            <div class="input-group-prepend">
+              <span class="input-group-text">Model</span>
+            </div>
+            <select class="custom-select" id="model">
+              <option selected>None</option>
+            </select>
+          </div>
+          <div class="input-group input-group-sm mb-2">
+            <div class="input-group-prepend">
+              <span class="input-group-text">Resolution</span>
+            </div>
+            <select class="custom-select" id="resolution">
+              <option selected>512x512</option>
+              <option value="1">512x640</option>
+              <option value="2">640x512</option>
+              <option value="3">640x640</option>
+              <option value="4">640x768</option>
+              <option value="5">768x640</option>
+              <option value="6">768x768</option>
+              <option value="7">768x960</option>
+              <option value="8">960x768</option>
+              <option value="9">960x960</option>
+
+            </select>
+          </div>
+          <div class="input-group input-group-sm mb-2">
+            <div class="input-group-prepend">
+              <span class="input-group-text">Steps</span>
+            </div>
+            <div class="form-control">
+              <input class="form-control custom-range" id="steps" oninput="syncLabels();" type="range" value="25" min="10" max="50">
+            </div>
+            <div class="input-group-append">
+              <span class="input-group-text text-fixed" id="steps-label">25</span>
+            </div>
+          </div>
+          <div class="input-group input-group-sm mb-2">
+            <div class="input-group-prepend">
+              <span class="input-group-text">Scale</span>
+            </div>
+            <div class="form-control">
+              <input class="form-control custom-range" id="scale" oninput="syncLabels();" type="range" value="7" min="5" max="15">
+            </div>
+            <div class="input-group-append">
+              <span class="input-group-text text-fixed" id="scale-label">7</span>
+            </div>
+          </div>
+          <div class="input-group input-group-sm mb-2">
+            <div class="input-group-prepend">
+              <span class="input-group-text">Seed</span>
+            </div>
+            <input type="number" class="form-control custom-input" id="seed" value="" placeholder="Random">
+            <div class="input-group-append">
+              <button type="button" class="btn btn-outline-secondary inline-button" id="randomize" onclick="randomizeSeed();">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-dice-3-fill" viewBox="0 0 16 16">
+                  <path d="M3 0a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V3a3 3 0 0 0-3-3H3zm2.5 4a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm8 8a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zM8 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="input-group input-group-sm mb-2">
+            <div class="input-group-prepend">
+              <span class="input-group-text">Sampler</span>
+            </div>
+            <select class="custom-select" id="sampler">
+              <option selected>Euler a</option>
+              <option>DDIM</option>
+              <option>DPM++ 2M</option>
+              <option>DPM++ SDE</option>
+            </select>
+          </div>
+        </div>
+        <div class="column structure endpoint">
+          <div class="input-group input-group-sm mb-2">
+            <div class="input-group-prepend">
+              <span class="input-group-text">Endpoint</span>
+            </div>
+            <input type="text" class="form-control custom-input" id="endpoint" value="ws://127.0.0.1:28888" placeholder="wss://endpoint.here">
+          </div>
+          <div class="input-group input-group-sm mb-2">
+            <div class="input-group-prepend">
+              <span class="input-group-text">Password</span>
+            </div>
+            <input type="text" class="form-control custom-input" id="password" value="qDiffusion" placeholder="None">
+            <div class="input-group-append">
+              <button type="button" class="btn btn-outline-secondary inline-button" id="connect">
+                <svg id="icon-disconnected" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 26 26"><path fill="currentColor" d="M24.875 0a1 1 0 0 0-.594.281l-1.656 1.656c-2.204-1.59-5.261-1.305-7.313.657c0 .076-.855.91-1.624 1.656l-.97-.969a1 1 0 0 0-.812-.312a1 1 0 0 0-.125.031a1 1 0 0 0-.5 1.719L13.562 7l-3.28 3.281a1.016 1.016 0 1 0 1.437 1.438L15 8.438L17.563 11l-3.282 3.281a1.016 1.016 0 1 0 1.438 1.438L19 12.438l2.281 2.28a1.016 1.016 0 1 0 1.438-1.437l-.969-.969l1.656-1.624c1.96-1.96 2.159-5.008.625-7.282L25.72 1.72A1 1 0 0 0 24.875 0zM3.906 10.969a1 1 0 0 0-.125.031a1 1 0 0 0-.5 1.719l.969.969l-1.656 1.624c-1.96 1.96-2.159 5.008-.625 7.282L.28 24.28a1.016 1.016 0 1 0 1.44 1.44l1.656-1.657c2.204 1.592 5.261 1.306 7.313-.656c0-.076.855-.91 1.624-1.656l.97.969a1.016 1.016 0 1 0 1.437-1.438l-10-10a1 1 0 0 0-.813-.312z"/></svg>
+                <svg id="icon-connected" class="hidden" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 26 26"><path fill="currentColor" d="M24.875 0a1 1 0 0 0-.594.281l-4.656 4.657c-2.204-1.592-5.261-1.306-7.313.656c0 .076-.855.91-1.624 1.656l-.97-.969A1 1 0 0 0 8.782 6a1 1 0 0 0-.5 1.719l10 10a1.016 1.016 0 1 0 1.438-1.438l-.969-.968l1.656-1.626c1.96-1.96 2.159-5.007.625-7.28l4.688-4.688A1 1 0 0 0 24.875 0zM6.906 7.969A1 1 0 0 0 6.781 8a1 1 0 0 0-.5 1.719l.969.969l-1.656 1.624c-1.96 1.96-2.159 5.008-.625 7.282L.28 24.28a1.016 1.016 0 1 0 1.44 1.44l4.656-4.657c2.204 1.592 5.261 1.306 7.313-.656c0-.076.855-.91 1.624-1.656l.97.969a1.016 1.016 0 1 0 1.437-1.438l-10-10a1 1 0 0 0-.813-.312z"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script>
+    function switchPrompt(value) {
+      if(value) {
+        $("#prompt-button").removeClass("disabled");
+        $("#negative-prompt-button").addClass("disabled");
+        $("#prompt").removeClass("hidden");
+        $("#negative-prompt").addClass("hidden");
+      } else {
+        $("#prompt-button").addClass("disabled");
+        $("#negative-prompt-button").removeClass("disabled");
+        $("#prompt").addClass("hidden");
+        $("#negative-prompt").removeClass("hidden");
+      }
+    }
+
+    function switchConnected(value) {
+      if(value) {
+        $("#icon-connected").removeClass("hidden");
+        $("#icon-disconnected").addClass("hidden");
+        $("#generate").prop("disabled", false);
+        setStatusProgress(0);
+        setStatusMode("idle");
+        setStatusMessage("Connected");
+      } else {
+        $("#icon-connected").addClass("hidden");
+        $("#icon-disconnected").removeClass("hidden");
+        $("#generate").prop("disabled", true);
+        setModels(["None"])
+        setStatusProgress(0);
+        setStatusMode("error")
+        setStatusMessage("Disconnected")
+      }
+    }
+
+    function syncLabels() {
+      $("#steps-label").text($("#steps").val())
+      $("#scale-label").text($("#scale").val())
+    }
+
+    function randomizeSeed() {
+      $("#seed").val("");
+    }
+
+    async function setModels(models) {
+      var current = $("#model option:selected").text()
+      $('#model option').remove();
+      $.each(models, function(val, text) {
+        var entry = $('<option></option>').val(val).html(text)
+        if(text == current) {
+          entry.prop('selected', true);
+        }
+        $("#model").append(entry);
+      });
+    }
+
+    function setStatusMessage(message) {
+      $("#status-text").text(message);
+    }
+
+    function setStatusMode(mode) {
+      $("#status-bar").removeClass("status-error");
+      $("#status-bar").removeClass("status-idle");
+      $("#status-bar").removeClass("status-working");
+      $("#status-bar").removeClass("status-empty");
+      $("#status-bar").addClass("status-"+mode);
+    }
+
+    function setStatusProgress(progress) {
+      setStatusMode("empty")
+      $("#status-progress").css("width", progress + "%");
+    }
+
+  </script>
+  <script type="module" src="/assets/js/scheme.mjs"></script>
+  <script type="module">
+    import { getKey, encrypt, decrypt } from '/assets/js/scheme.mjs';
+
+    var ws
+    var key
+    var models
+
+    function getSelected(a) {
+      return a.options[a.selectedIndex].text
+    }
+
+    function showError(error) {
+      $("#error-label").text(error);
+      $("#error-modal").modal("show");
+    }
+
+    function glow(id, type) {
+      $(id).addClass(type);
+      setTimeout(function() {
+        $(id).removeClass(type);
+      },1000);
+    }
+
+    function buildRequest() {
+      request = {}
+      return request
+    }
+
+    async function sendMessage(msg) {
+      msg.id = Math.floor(Math.random() * 1000000) + 1
+      ws.send(await encrypt(key, msg));
+    }
+    
+    async function handleMessage(msg) {
+      const type = msg.type;
+      const data = msg.data;
+      var result = null;
+
+      switch(type) {
+        case "hello":
+          sendMessage({"type":"options"})
+          break;
+        case "options":
+          handleOptions(data)
+          break;
+        case "result":
+          result = data.images[0];
+          switchConnected(true);
+          break;
+        case "progress":
+          setStatusProgress(Math.floor(100*data.current/data.total))
+          if(data.previews) {
+            result = data.previews[0];
+          }
+          break;
+        case "status":
+          setStatusMode("working")
+          setStatusMessage(data.message);
+          break;
+      }
+
+      if(result != null) {
+        var blob = new Blob([result.buffer], {'type': 'image/png'});
+        var url = URL.createObjectURL(blob);
+        $("#result").attr("src", url);
+      }
+    }
+
+    async function handleOptions(data) {
+      models = {}
+      $.map(data.UNET, function(entry) {
+          var name = entry.split("/").slice(-1)[0].split("\\").slice(-1)[0];
+          models[name] = entry;
+      })
+      await setModels(Object.keys(models));
+    }
+
+    function doConnect() {
+      if(ws != undefined && ws.readyState != 3) {
+        ws.close()
+        return
+      }
+      try {
+        ws = new WebSocket($("#endpoint").val());
+      } catch(error) {
+        showError("Invalid Endpoint");
+        return
+      }
+      return new Promise((resolve, reject) => {
+        ws.onopen = async function() {
+          switchConnected(true);
+          glow("#connect", "glow-success")
+          key = undefined;
+          resolve();
+        };
+
+        ws.onerror = async function(event) {
+          console.log(event)
+          glow("#connect", "glow-failed")
+        }
+
+        ws.onclose = async function() {
+          switchConnected(false);
+          key = undefined;
+          reject();
+        };
+
+        ws.onmessage = async function(event) {
+          if(key == undefined) {
+            key = await getKey($("#password").val());
+          }
+
+          if (event.data instanceof Blob) {
+            try {
+              const msg = await decrypt(key, await event.data.arrayBuffer());
+              handleMessage(msg)
+            } catch(error) {
+              console.log(error, key)
+              showError("Incorrect password");
+            }
+          }
+        };
+      });
+    }
+
+    async function doGenerate() {
+      if(ws == undefined || ws.readyState != 1) {
+        glow("#generate", "glow-failed")
+        return
+      }
+
+      var resolution = $("#resolution option:selected").text().split("x")
+      var seed = $("#seed").val()
+      if(seed == "") {
+        seed = "-1"
+      }
+      var model = models[$("#model option:selected").text()]
+
+      var request = {
+        "type": "txt2img",
+        "data": {
+          "width": parseInt(resolution[0]),
+          "height": parseInt(resolution[1]),
+          "steps": parseInt($("#steps").val()),
+          "scale": parseFloat($("#scale").val()),
+          "seed": parseInt(seed),
+          "sampler": $("#sampler option:selected").text(),
+          "prompt": [[[$("#prompt").val()], [$("#negative-prompt").val()]]],
+          "clip_skip": 1,
+          "batch_size": 1,
+          "unet": model,
+          "clip": model,
+          "vae": model,
+          "attention": "Default",
+          "vram_mode": "Default",
+          "preview_interval": 1,
+          "show_preview": "Medium",
+          "network_mode": "Dynamic",
+          "autocast": false,
+          "tiling_mode": "Disabled",
+        }
+      }
+
+      await sendMessage(request);
+    }
+
+    $("#connect").on("click", async function () { await doConnect(); });
+
+    $("#generate").on("click", async function () { await doGenerate(); });
+
+  </script>
+</html>
