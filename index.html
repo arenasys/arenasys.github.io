@@ -4,10 +4,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/photoswipe.css">
+    
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-    
+
     <title>qDiffusion Web</title>
   </head>
   <body>
@@ -29,9 +31,22 @@
       <div class="outputs">
         <div class="mid structure">
           <div class="mid-lower structure">
-            <button type="button" class="btn btn-outline-secondary btn-normal" id="generate" disabled>Generate</button>
-            <div class="image-holder">
-              <img class="image" id="result">
+            <div class="button-holder">
+              <button type="button" class="btn btn-gen" id="generate" disabled>
+                Generate
+              </button>
+              <button type="button" class="btn btn-gen btn-forever" id="forever">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                  <rect x="0" y="0" width="24" height="24" fill="none" stroke="none"/>
+                  <path fill="currentColor" d="M17 17H7v-3l-4 4l4 4v-3h12v-6h-2M7 7h10v3l4-4l-4-4v3H5v6h2V7Z"/>
+                </svg>
+              </button>
+            </div>
+            <div class="image-holder" id="gallery">
+              <svg class="placeholder" version="1.1" width="64" height="64" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg" fill="currentColor" >
+                <path d="m239.97 128a15.79 15.79 0 0 1-10.5 15l-63.44 23.07-23.06 63.43a16 16 0 0 1-30 0l-23.07-63.5-63.43-23a16 16 0 0 1 0-30l63.5-23.07 23-63.43a16 16 0 0 1 30 0l23.07 63.5 63.43 23a15.79 15.79 0 0 1 10.5 15z"/>
+              </svg>
+              <img class="image" id="result" src="">
             </div>
             <div class="status-bar status-error" id="status-bar">
               <div class="progress status-progress">
@@ -150,6 +165,7 @@
     </div>
   </body>
   <script>
+
     function switchPrompt(value) {
       if(value) {
         $("#prompt-button").removeClass("disabled");
@@ -163,6 +179,33 @@
         $("#negative-prompt").removeClass("hidden");
       }
     }
+
+    function syncLabels() {
+      $("#steps-label").text($("#steps").val())
+      $("#scale-label").text($("#scale").val())
+    }
+
+    function randomizeSeed() {
+      $("#seed").val("");
+    }
+
+  </script>
+  <script type="module">
+    import PhotoSwipe from './assets/js/photoswipe.esm.min.js';
+    import { getKey, encrypt, decrypt } from './assets/js/scheme.mjs';
+
+    var ws
+    var key
+
+    var models
+
+    var results = []
+    var gallery
+
+    var working = false
+    var preview = false
+    var forever = false
+    var id
 
     function switchConnected(value) {
       if(value) {
@@ -183,13 +226,24 @@
       }
     }
 
-    function syncLabels() {
-      $("#steps-label").text($("#steps").val())
-      $("#scale-label").text($("#scale").val())
-    }
+    function switchWorking(value) {
+      working = value
 
-    function randomizeSeed() {
-      $("#seed").val("");
+      if(!working && preview) {
+        if(results.length != 0) {
+          $("#result").attr("src", results[0].src)
+        } else {
+          $("#result").attr("src", "")
+        }
+      }
+
+      if(working) {
+        $("#generate").html("Working");
+      } else {
+        $("#generate").html("Generate");
+      }
+
+      console.log(value)
     }
 
     function glow(id, type) {
@@ -220,6 +274,7 @@
       $("#status-bar").removeClass("status-idle");
       $("#status-bar").removeClass("status-working");
       $("#status-bar").removeClass("status-empty");
+      $("#status-bar").removeClass("status-waiting");
       $("#status-bar").addClass("status-"+mode);
     }
 
@@ -243,40 +298,44 @@
       showError("Error while " + stage, message)
     }
 
-  </script>
-  <script type="module" src="/assets/js/scheme.mjs"></script>
-  <script type="module">
-    import { getKey, encrypt, decrypt } from '/assets/js/scheme.mjs';
-
-    var ws
-    var key
-    var models
-
     async function sendMessage(msg) {
-      msg.id = Math.floor(Math.random() * 1000000) + 1
+      if(!msg.id) {
+        msg.id = Math.floor(Math.random() * 1000000) + 1
+      }
       ws.send(await encrypt(key, msg));
     }
     
     async function handleMessage(msg) {
       const type = msg.type;
       const data = msg.data;
-      var result = null;
 
       switch(type) {
         case "hello":
           sendMessage({"type":"options"})
           break;
+        case "ack":
+          if(data.queue > 0 && data.id == id) {
+            setStatusMode("waiting")
+            setStatusMessage("Waiting");
+          }
+          break;
         case "options":
           handleOptions(data)
           break;
         case "result":
-          result = data.images[0];
+          handleResult(data.images[0].buffer);
+          preview = false;
+          switchWorking(false);
           switchConnected(true);
+          if(forever) {
+            await doGenerate()
+          }
           break;
         case "progress":
-          setStatusProgress(Math.floor(100*data.current/data.total))
+          setStatusProgress(Math.floor(100*(data.current+1)/data.total))
           if(data.previews) {
-            result = data.previews[0];
+            preview = true;
+            setResult(data.previews[0].buffer);
           }
           break;
         case "status":
@@ -286,14 +345,12 @@
         case "error":
           setErrorMessage(data.message);
           break;
+        case "aborted":
+          switchWorking(false);
+          switchConnected(true);
+          break;
         default:
           console.log(msg)
-      }
-
-      if(result != null) {
-        var blob = new Blob([result.buffer], {'type': 'image/png'});
-        var url = URL.createObjectURL(blob);
-        $("#result").attr("src", url);
       }
     }
 
@@ -304,6 +361,44 @@
           models[name] = entry;
       })
       await setModels(Object.keys(models));
+    }
+
+    function setResult(data) {
+      var blob = new Blob([data], {'type': 'image/png'});
+      var url = URL.createObjectURL(blob);
+      $("#result").attr("src", url);
+    }
+
+    async function handlePreview(data) {
+      var blob = new Blob([result.buffer], {'type': 'image/png'});
+      var url = URL.createObjectURL(blob);
+      $("#result").attr("src", url);
+    }
+
+    async function handleResult(data) {
+      var blob = new Blob([data], {'type': 'image/png'});
+      var url = URL.createObjectURL(blob);
+      $("#result").on("load", function (event) {
+        const i = $("#result");
+        i.off("load");
+        results.unshift({
+          src: i.attr("src"),
+          width: i.prop("naturalWidth"),
+          height: i.prop("naturalHeight")
+        });
+        if(gallery) {
+          gallery.options.dataSource = results;
+          var c = gallery.currSlide.index;
+          if(c != 0) {
+            gallery.refreshSlideContent(c+1);
+            gallery.goTo(c+1);
+          }
+          for (let x = 0; x < results.length; x++) {
+            gallery.refreshSlideContent(x);
+          }
+        }
+      })
+      $("#result").attr("src", url);
     }
 
     function doConnect() {
@@ -363,6 +458,17 @@
         glow("#generate", "glow-failed")
         return
       }
+      
+      if(working) {
+        request = {
+          "type": "cancel",
+          "data": {
+            "id": id
+          }
+        }
+        await sendMessage(request);
+        return;
+      }
 
       var resolution = $("#resolution option:selected").text().split("x")
       var seed = $("#seed").val()
@@ -393,9 +499,13 @@
           "network_mode": "Dynamic",
           "autocast": false,
           "tiling_mode": "Disabled",
-        }
+        },
+        "id": Math.floor(Math.random() * 1000000) + 1
       }
 
+      id = request.id;
+
+      switchWorking(true);
       await sendMessage(request);
     }
 
@@ -403,13 +513,72 @@
 
     $("#generate").on("click", async function () { await doGenerate(); });
 
+    $("#forever").on("click", async function () {
+      forever = !forever;
+      if(forever) {
+        $("#forever").addClass("btn-toggled");
+      } else {
+        $("#forever").removeClass("btn-toggled");
+      }
+    });
+
     $("#error-modal").on("hidden.bs.modal", function (e) {
+      switchWorking(false);
       if(ws == undefined || ws.readyState != 1) {
         switchConnected(false)
       } else {
         switchConnected(true)
       }
     })
+
+    $("#result").on("click", function () {
+      if(results.length == 0) {
+        return;
+      }
+
+      const options =  {
+        dataSource: results,
+        index: 0,
+        loop: false,
+        spacing: 0.1,
+        zoom: false,
+        clickToCloseNonZoomable: false,
+        preload: [2, 2],
+        showHideAnimationType: 'none',
+      };
+      gallery = new PhotoSwipe(options);
+
+      gallery.on('uiRegister', function() {
+        gallery.ui.registerElement({
+          name: 'download-button',
+          order: 8,
+          isButton: true,
+          tagName: 'a',
+
+          html: {
+            isCustomSVG: true,
+            inner: '<path d="M20.5 14.3 17.1 18V10h-2.2v7.9l-3.4-3.6L10 16l6 6.1 6-6.1ZM23 23H9v2h14Z" id="pswp__icn-download"/>',
+            outlineID: 'pswp__icn-download'
+          },
+
+          onInit: (el, pswp) => {
+            el.setAttribute('download', '');
+            el.setAttribute('target', '_blank');
+            el.setAttribute('rel', 'noopener');
+
+            pswp.on('change', () => {
+              el.href = pswp.currSlide.data.src;
+            });
+          }
+        });
+      });
+
+      gallery.on('destroy', () => {
+        gallery = undefined
+      });
+
+      gallery.init();
+    });
 
     $(document).ready(function() {
       const params = new URLSearchParams(window.location.search);

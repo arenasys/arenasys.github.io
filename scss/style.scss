@@ -69,7 +69,7 @@ $accent3: #ffd400;
 $accent-glow: rgba(255, 217, 0, 0.25);
 
 $error-glow: rgba(255, 17, 0, 0.25);
-$success-glow: rgba(30, 255, 0, 0.25);
+$success-glow: rgba(19, 165, 0, 0.25);
 $working-glow: rgba(0, 89, 255, 0.25);
 
 $bg1: #161616;
@@ -107,8 +107,7 @@ body {
 
 .parameters {
   width: 100%;
-  height: 100%;
-  border-top: $border-width solid $border-color;
+  height: calc(100vh - 100vw);
   border-left: none;
   overflow: auto;
 }
@@ -189,7 +188,6 @@ body {
     width: 30%;
     min-width: 300px;
     height: 100vh;
-    border-top: none;
     border-left: $border-width solid $border-color;
   }
 }
@@ -331,17 +329,20 @@ textarea:focus {
   max-height: 100%;
   width: auto;
   border-radius: 1px;
-  box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.5)
-}
-
-.prompt-tab-row {
-  width: 100%;
+  box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.5);
+  z-index: 1;
 }
 
 .image-holder {
   width: 100%;
-  height: calc(100% - 3.75rem + 1px);
+  height: calc(100% - 3.75rem + 0.3rem + 1px);
   padding: 6px; 
+  display: flex;
+  position: relative;
+}
+
+.prompt-tab-row {
+  width: 100%;
 }
 
 .status-bar {
@@ -369,6 +370,10 @@ textarea:focus {
 
 .status-bar.status-idle {
   background-color: rgba(30, 255, 0, 0.05);
+}
+
+.status-bar.status-waiting {
+  background-color: rgba(0, 255, 179, 0.05);
 }
 
 .status-progress {
@@ -525,7 +530,7 @@ textarea:focus {
 }
 
 .glow-success {
-  box-shadow: 0 0 0 0.2rem $accent-glow !important;
+  box-shadow: 0 0 0 0.2rem $success-glow !important;
 }
 
 /* Chrome, Safari, Edge, Opera */
@@ -571,6 +576,7 @@ input[type=number] {
   align-items: flex-start;
   justify-content: space-between;
   padding: 0.2rem;
+  padding-bottom: 0.1rem;
   border-bottom: $border-width solid $border-color;
   background-color: $bg5;
   font-size: 0.75rem;
@@ -607,6 +613,58 @@ input[type=number] {
     padding: 0.2rem;
     vertical-align: middle;
   }
+}
+
+.button-holder {
+  height: calc(2rem+4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-gen {
+  color: $fg2;
+  background-color: $bg4;
+  border-color: $bg6;
+  box-shadow: 0 4px 12px 0 rgba(0,0,0,0.5) !important;
+  margin: 0 3px;
+  margin-top: 5px;
+  display: block;
+  width: 15rem;
+  height: 2rem;
+  padding: 4px 0 0 0;
+}
+
+.btn-gen:hover {
+  color: $fg2;
+  background-color: $bg4;
+  border-color: $bg6;
+}
+
+.btn-gen:active {
+  color: $fg2;
+  background-color: $bg4;
+  border-color: $bg6;
+}
+
+.btn-forever {
+  width: 2rem;
+  padding: 0 0 0 0;
+  color: $bg6 !important;
+  background-color: $bg2 !important;
+  border-color: $bg4 !important;
+}
+
+.btn-forever.btn-toggled {
+  color: $fg2 !important;
+  background-color: $bg4 !important;
+  border-color: $bg6 !important;
+}
+
+.placeholder {
+  position: absolute;
+  top: calc(50% - 32px);
+  left: calc(50% - 32px);
 }
 
 .bg-darker {
