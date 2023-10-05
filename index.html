@@ -471,7 +471,7 @@
           if(name == selected) {
             if(span.hasClass("active")) {
               span.removeClass("active lora");
-              promptRemoveLoRA(new RegExp(",?\\s?<@?lora:" + name + "(:[^>]+)?>"));
+              promptRemove(new RegExp(",?\\s?<@?lora:" + name + "(:[^>]+)?>"));
             } else {
               span.addClass("active lora");
               promptAdd("<lora:"+name+":1.0>");
