@@ -3,18 +3,20 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/photoswipe.css">
-    
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="assets/css/highlight-within-textarea.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+
+    <script src="assets/js/jquery-3.2.1.slim.min.js"></script>
+    <script src="assets/js/popper.min.js"></script>
+    <script src="assets/js/bootstrap.min.js"></script>
+    <script src="assets/js/highlight-within-textarea.js"></script>
 
     <title>qDiffusion Web</title>
   </head>
   <body>
 
-    <div class="modal fade" id="error-modal" tabindex="-1" role="dialog" aria-labelledby="error-model-title" aria-hidden="true">
+    <div class="modal" id="error-modal" tabindex="-1" role="dialog" aria-labelledby="error-model-title" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
           <div class="modal-header">
@@ -22,6 +24,42 @@
           </div>
           <div class="modal-body" id="error-label">
             ...
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="add-modal" tabindex="-1" role="dialog" aria-labelledby="add-model-title" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h6 class="modal-title" id="add-model-title">Add to Prompt</h5>
+          </div>
+          <div class="modal-body add-body" id="add-label">
+            <div class="input-group input-group-sm">
+              <div class="input-group-prepend prompt-tab-row">
+                <span class="input-group-text custom-tab" id="lora-button" onclick="switchModel(true);">LoRAs</span>
+                <span style="width:3px"></span>
+                <span class="input-group-text custom-tab disabled" id="embedding-button" onclick="switchModel(false);">Embeddings</span>
+                <span style="width:100%"></span>
+              </div>
+              <div class="modal-list-holder">
+                <table class="table table-striped modal-list">
+                  <tbody id="lora-table" class="modal-table">
+                    <tr>
+                      <td><span>None</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+                <table class="table table-striped modal-list hidden">
+                  <tbody id="embedding-table" class="modal-table">
+                    <tr>
+                      <td><span>None</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -62,11 +100,15 @@
           <div class="input-group input-group-sm mb-2">
             <div class="input-group-prepend prompt-tab-row">
               <span class="input-group-text custom-tab" id="prompt-button" onclick="switchPrompt(true);">Prompt</span>
-              <span style="width:2px"></span>
+              <span style="width:3px"></span>
               <span class="input-group-text custom-tab disabled" id="negative-prompt-button" onclick="switchPrompt(false);">Negative</span>
+              <span style="width:100%"></span>
+              <span class="input-group-text custom-tab" id="add-button" onclick="">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="1 1 14 14"><path fill="currentColor" d="M14 7H9V2H7v5H2v2h5v5h2V9h5V7z"/></svg>
+              </span>
             </div>
-            <textarea class="prompt" placeholder="Prompt..." id="prompt"></textarea>
-            <textarea class="prompt hidden" placeholder="Negative Prompt..." id="negative-prompt"></textarea>
+            <textarea class="prompt" placeholder="Prompt..." id="prompt" spellcheck="false"></textarea>
+            <textarea class="prompt" placeholder="Negative Prompt..." id="negative-prompt" spellcheck="false"></textarea>
           </div>
           <div class="input-group input-group-sm mb-2">
             <div class="input-group-prepend">
@@ -123,7 +165,7 @@
             <input type="number" class="form-control custom-input" id="seed" value="" placeholder="Random">
             <div class="input-group-append">
               <button type="button" class="btn btn-outline-secondary inline-button" id="randomize" onclick="randomizeSeed();">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-dice-3-fill" viewBox="0 0 16 16">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-dice-3-fill" viewBox="-1 -1 18 18">
                   <path d="M3 0a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V3a3 3 0 0 0-3-3H3zm2.5 4a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm8 8a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zM8 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/>
                 </svg>
               </button>
@@ -170,13 +212,27 @@
       if(value) {
         $("#prompt-button").removeClass("disabled");
         $("#negative-prompt-button").addClass("disabled");
-        $("#prompt").removeClass("hidden");
-        $("#negative-prompt").addClass("hidden");
+        $("#prompt").parent().removeClass("hidden");
+        $("#negative-prompt").parent().addClass("hidden");
       } else {
         $("#prompt-button").addClass("disabled");
         $("#negative-prompt-button").removeClass("disabled");
-        $("#prompt").addClass("hidden");
-        $("#negative-prompt").removeClass("hidden");
+        $("#prompt").parent().addClass("hidden");
+        $("#negative-prompt").parent().removeClass("hidden");
+      }
+    }
+
+    function switchModel(value) {
+      if(value) {
+        $("#lora-table").parent().removeClass("hidden");
+        $("#embedding-table").parent().addClass("hidden");
+        $("#lora-button").removeClass("disabled");
+        $("#embedding-button").addClass("disabled");
+      } else {
+        $("#lora-table").parent().addClass("hidden");
+        $("#embedding-table").parent().removeClass("hidden");
+        $("#lora-button").addClass("disabled");
+        $("#embedding-button").removeClass("disabled");
       }
     }
 
@@ -189,6 +245,32 @@
       $("#seed").val("");
     }
 
+    function getPrompt() {
+      if($("#prompt-button").hasClass("disabled")) {
+        return $("#negative-prompt");
+      } else {
+        return $("#prompt");
+      }
+    }
+
+    function promptAdd(value) {
+      var p = getPrompt();
+      var txt = p.val().trim();
+      if(txt) {
+        p.val(txt + ", " + value);
+      } else {
+        p.val(value);
+      }
+      p.highlightWithinTextarea("update");
+    }
+
+    function promptRemove(value) {
+      var p = getPrompt();
+      var txt = p.val().trim();
+      p.val(txt.replace(value, ""));
+      p.highlightWithinTextarea("update");
+    }
+
   </script>
   <script type="module">
     import PhotoSwipe from './assets/js/photoswipe.esm.min.js';
@@ -198,6 +280,9 @@
     var key
 
     var models
+    var loras = []
+    var embeddings = []
+    var selected
 
     var results = []
     var gallery
@@ -242,8 +327,6 @@
       } else {
         $("#generate").html("Generate");
       }
-
-      console.log(value)
     }
 
     function glow(id, type) {
@@ -288,6 +371,10 @@
       $("#error-label").html(error);
       $("#error-model-title").html(title);
       $("#error-modal").modal("show");
+    }
+
+    function showAdd() {
+      $("#add-modal").modal("show");
     }
 
     function setErrorMessage(message) {
@@ -354,12 +441,81 @@
       }
     }
 
+    function getName(file) {
+      var name = file.split("/").slice(-1)[0].split("\\").slice(-1)[0].split('.').slice(0, -1).join('.');
+      return name;
+    }
+
     async function handleOptions(data) {
       models = {}
       $.map(data.UNET, function(entry) {
-          var name = entry.split("/").slice(-1)[0].split("\\").slice(-1)[0];
-          models[name] = entry;
+        var name = getName(entry);
+        models[name] = entry;
       })
+
+      loras = []
+      var lora_tbl = $("#lora-table").empty()
+      $.map(data.LoRA, function(entry) {
+        var name = getName(entry)
+        loras.push(name);
+        
+        var row = $("<tr></tr>");
+        var data = $("<td></td>");
+        var span = $("<span>" + name + "</name>");
+        
+        data.append(span);
+        row.append(data);
+        lora_tbl.append(row);
+        
+        row.on("click", function () {
+          if(name == selected) {
+            if(span.hasClass("active")) {
+              span.removeClass("active lora");
+              promptRemoveLoRA(new RegExp(",?\\s?<@?lora:" + name + "(:[^>]+)?>"));
+            } else {
+              span.addClass("active lora");
+              promptAdd("<lora:"+name+":1.0>");
+            }
+            selected = undefined;
+          } else {
+            selected = name;
+          }
+        });
+      })
+
+      embeddings = []
+      var embedding_tbl = $("#embedding-table").empty()
+      $.map(data.TI, function(entry) {
+        var name = getName(entry)
+        embeddings.push(name);
+
+        var row = $("<tr></tr>");
+        var data = $("<td></td>");
+        var span = $("<span>" + name + "</name>");
+        
+        data.append(span);
+        row.append(data);
+        embedding_tbl.append(row);
+
+        row.on("click", function () {
+          if(name == selected) {
+            if(span.hasClass("active")) {
+              span.removeClass("active embedding");
+              promptRemove(new RegExp(",?\\s?" + name));
+            } else {
+              span.addClass("active embedding");
+              promptAdd(name);
+            }
+            selected = undefined;
+          } else {
+            selected = name;
+          }
+        });
+      })
+
+      $('#prompt').highlightWithinTextarea('update');
+      $('#negative-prompt').highlightWithinTextarea('update');
+      
       await setModels(Object.keys(models));
     }
 
@@ -421,7 +577,6 @@
         };
 
         ws.onerror = async function(event) {
-          console.log(event)
           glow("#connect", "glow-failed")
         }
 
@@ -445,7 +600,6 @@
               const msg = await decrypt(key, await event.data.arrayBuffer());
               handleMessage(msg)
             } catch(error) {
-              console.log(error, key)
               showError("Incorrect password");
             }
           }
@@ -579,6 +733,86 @@
 
       gallery.init();
     });
+
+    function getLoRAs(prompt, full=false) {
+      var found = []
+      const lora_re = /<@?lora:([^:>]+)([^>]+)?>/g;
+      for (const match of prompt.matchAll(lora_re)) {
+        if(loras.includes(match[1])) {
+          if(full) {
+            found.push(match[0])
+          } else {
+            found.push(match[1])
+          }
+        }
+      }
+      return found;
+    }
+
+    function getEmbeddings(prompt) {
+      var found = []
+      for (var word of prompt.split(/,|\s+/)) {
+        if(embeddings.includes(word)) {
+          found.push(word)
+        }
+      }
+      return found
+    }
+
+    function highlightPrompt(input) {
+      var matches = []
+
+      const lora_re = /<@?lora:([^:>]+)([^>]+)?>/g;
+      for (const match of getLoRAs(input, true)) {
+        var name = match.split(/:|>/)[1]
+        if(loras.includes(name)) {
+          matches.push({ highlight: match, className: "lora" })
+        } else {
+          matches.push({ highlight: match, className: "error" })
+        }
+      }
+      
+      for (const match of getEmbeddings(input)) {
+        matches.push({ highlight: match, className: "embedding" })
+      }
+
+      return matches;
+    }
+
+    $("#prompt").highlightWithinTextarea({ highlight: highlightPrompt });
+    $("#negative-prompt").highlightWithinTextarea({ highlight: highlightPrompt });
+    switchPrompt(true);
+
+    $("#add-button").on("click", function () {
+      var p = getPrompt();
+      var loras = getLoRAs(p.val());
+      var embs = getEmbeddings(p.val());
+
+      $("#lora-table").children("tr").each(function () {
+        var span = $(this).children("td").eq(0).children("span").eq(0);
+        if(loras.includes(span.text())) {
+          span.addClass("active lora");
+        } else {
+          span.removeClass("active lora");
+        }
+      });
+
+      $("#embedding-table").children("tr").each(function () {
+        var span = $(this).children("td").eq(0).children("span").eq(0);
+        if(embs.includes(span.text())) {
+          span.addClass("active embedding");
+        } else {
+          span.removeClass("active embedding");
+        }
+      });
+
+      $("#add-button").addClass("disabled");
+      showAdd();
+    });
+
+    $("#add-modal").on("hidden.bs.modal", function (e) {     
+      $("#add-button").removeClass("disabled");
+    })
 
     $(document).ready(function() {
       const params = new URLSearchParams(window.location.search);

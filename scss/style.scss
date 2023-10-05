@@ -39,7 +39,7 @@ $gray-900: hsl(210, 0%, 15%);
 // @import "bootstrap/scss/alert";
 @import "bootstrap/scss/progress";
 // @import "bootstrap/scss/media";
-// @import "bootstrap/scss/list-group";
+@import "bootstrap/scss/list-group";
 @import "bootstrap/scss/close";
 // @import "bootstrap/scss/toasts";
 @import "bootstrap/scss/modal"; // Requires transitions
@@ -299,11 +299,11 @@ textarea:focus {
   resize: none;
   margin-top: -1px;
   border: $border-width solid $border-color;
-  box-shadow: 2px 2px 4px 0 rgba(0, 0, 0, 0.2);
+  box-shadow: 2px 2px 4px 0 rgba(0, 0, 0, 0.2) !important;
 }
 
 .hidden {
-  display: none;
+  display: none !important;
 }
 
 .text {
@@ -487,13 +487,12 @@ textarea:focus {
   cursor: pointer;
 }
 
-
 .custom-input:hover {
   background-color: $bg5;
 }
 
 .custom-tab:hover {
-  background-color: $bg5;
+  background-color: $bg4;
 }
 
 .custom-tab.disabled:hover {
@@ -571,6 +570,17 @@ input[type=number] {
   margin-top: 0.5rem;
 }
 
+.table {
+  margin: auto;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  width: 70%;
+  th, td {
+    padding: 0.2rem;
+    vertical-align: middle;
+  }
+}
+
 .modal-header {
   display: flex;
   align-items: flex-start;
@@ -604,15 +614,58 @@ input[type=number] {
   margin-left: 0.3rem;
 }
 
-.table {
-  margin: auto;
-  margin-top: 2rem;
-  margin-bottom: 2rem;
-  width: 70%;
-  th, td {
-    padding: 0.2rem;
-    vertical-align: middle;
-  }
+.modal-body {
+  display: flex;
+}
+
+.modal-list {
+  color: $fg2;
+  background-color: $bg4;
+  border-radius: 0px;
+  margin-top: -1px;
+  margin-bottom: 0;
+  margin-left: 1rem;
+  margin-right: calc(1rem - 5px);
+  width: 100%;
+  max-height: 50vh;
+  height: fit-content;
+  outline: $border-width solid $border-color;
+}
+
+.modal-list td {
+  border-top: $border-width solid $border-color;
+  font-size: 0.875rem;
+}
+
+.active {
+  outline-width: 2px;
+  border-radius: 2px;
+  outline-style: solid;
+}
+
+.modal-list tr:hover {
+  background-color: $bg5 !important;
+}
+
+.modal-list-holder {
+  margin-top: -1px !important;
+  background-color: $bg3;
+  border: $border-width solid $border-color;
+  box-shadow: 2px 2px 4px 0 rgba(0, 0, 0, 0.2);
+  width: 100%;
+  height: 50vh;
+  overflow: auto;
+  display: flex;
+  overflow: -moz-scrollbars-vertical; 
+  overflow-y: scroll;
+}
+
+.modal-table {
+  box-shadow: 0 0 8px 2px rgba(0, 0, 0, 0.2);
+}
+
+.add-body {
+  padding: 0.5rem;
 }
 
 .button-holder {
@@ -669,4 +722,46 @@ input[type=number] {
 
 .bg-darker {
   background-color: $gray-900 !important;
+}
+
+.hwt-container {
+  width: 100%;
+  overflow: unset !important;
+  font-size: .875rem;
+  background-color: $bg3;
+}
+
+.hwt-backdrop {
+  width: 100%;
+  padding: 0.5rem !important
+}
+
+.hwt-highlights {
+  padding: 0 !important;
+  overflow: unset !important;
+}
+
+mark {
+  color: transparent !important;
+  outline-width: 2px;
+  border-radius: 2px;
+  outline-style: solid;
+}
+
+.lora {
+  color: $fg1;
+  background-color: rgba(192, 91, 255, 0.1);
+  outline-color: rgba(192, 91, 255, 0.1);
+}
+
+.embedding {
+  color: $fg1;
+  background-color: rgba(255, 237, 77, 0.1);
+  outline-color: rgba(255, 237, 77, 0.1);
+}
+
+.error {
+  color: $fg1;
+  background-color: rgba(255, 102, 91, 0.1);
+  outline-color: rgba(255, 102, 91, 0.1);
 }
