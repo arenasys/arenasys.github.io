@@ -92,6 +92,20 @@ body {
   font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: $bg2;
   margin: 0px;
+  scrollbar-color: $bg6 rgba(0,0,0,0);
+  border-width: $border-width;
+}
+
+input[type=range] {
+  pointer-events: none;
+}
+
+input[type=range]::-webkit-slider-thumb {
+  pointer-events:auto;
+}
+
+input[type=range]::-moz-range-thumb {
+  pointer-events:auto;
 }
 
 .base-container {
@@ -165,7 +179,7 @@ body {
   padding-bottom: 0px;
 }
 
-.endpoint {
+.additional {
   border-top: $border-width solid $border-color;
 }
 
@@ -424,7 +438,7 @@ textarea:focus {
 .custom-select {
   color: $fg1;
   background-color: $bg4;
-  border-color: $border-color;
+  border: $border-width solid $border-color;
   border-radius: 0px !important;
   box-shadow: 2px 2px 4px 0 rgba(0, 0, 0, 0.2);
 }
@@ -471,19 +485,25 @@ textarea:focus {
   opacity: 1;
 }
 
+.custom-range:active {
+  opacity: 1;
+}
+
 .custom-range::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
   width: 10px;
-  height: 20px;
+  height: 18px;
   background: $bg8;
   cursor: pointer;
 }
 
 .custom-range::-moz-range-thumb {
-  width: 10px;
-  height: 20px;
+  width: 8px;
+  height: 18px;
   background: $bg8;
+  border-radius: 0px;
+  border: $border-width solid #787878;
   cursor: pointer;
 }
 
@@ -515,7 +535,7 @@ textarea:focus {
 .btn-outline-secondary:active {
   color: $fg1 !important;
   background-color: $bg5 !important;
-  border-color: $bg8 !important;
+  border-color: $bg7 !important;
   box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.5) !important;
 }
 
@@ -548,6 +568,16 @@ input[type=number] {
   z-index: 1;
   color: $fg1;
   width: 33px;
+  height: 31px;
+  text-align: center;
+  justify-content: center;
+  padding: 0 !important;
+}
+
+.text-fixed-wide {
+  z-index: 1;
+  color: $fg1;
+  width: 40px;
   height: 31px;
   text-align: center;
   justify-content: center;
@@ -630,6 +660,7 @@ input[type=number] {
   max-height: 50vh;
   height: fit-content;
   outline: $border-width solid $border-color;
+  table-layout: fixed;
 }
 
 .modal-list td {
@@ -685,7 +716,7 @@ input[type=number] {
   display: block;
   width: 15rem;
   height: 2rem;
-  padding: 4px 0 0 0;
+  padding: 0 !important;
 }
 
 .btn-gen:hover {
@@ -697,7 +728,7 @@ input[type=number] {
 .btn-gen:active {
   color: $fg2;
   background-color: $bg4;
-  border-color: $bg6;
+  border-color: $bg7;
 }
 
 .btn-forever {
@@ -764,4 +795,48 @@ mark {
   color: $fg1;
   background-color: rgba(255, 102, 91, 0.1);
   outline-color: rgba(255, 102, 91, 0.1);
+}
+
+.settings-container {
+  padding: 0.5rem;
+  padding-bottom: 0;
+  margin-top: -1px;
+  width: 100%;
+  border: $border-width solid $border-color;
+}
+
+.input-group-normal {
+  font-size: 0.875rem;
+  color: $fg2;
+}
+
+.download-list-holder {
+  margin-top: -1px !important;
+  margin-bottom: 0.5rem;
+  background-color: $bg3;
+  border: $border-width solid $border-color;
+  box-shadow: 2px 2px 4px 0 rgba(0,0,0,0.2);
+  width: 100%;
+  overflow: auto;
+  display: flex;
+  overflow: -moz-scrollbars-vertical;
+  overflow-y: scroll;
+  font-size: 0.7rem;
+}
+
+.td-additional {
+  border-left: $border-width solid $border-color;
+  width: 1.75rem;
+}
+
+.td-text {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  text-align: center;
+}
+
+.download-icon {
+  margin: auto;
+  width: 100%;
 }

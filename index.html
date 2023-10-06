@@ -75,8 +75,7 @@
               </button>
               <button type="button" class="btn btn-gen btn-forever" id="forever">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                  <rect x="0" y="0" width="24" height="24" fill="none" stroke="none"/>
-                  <path fill="currentColor" d="M17 17H7v-3l-4 4l4 4v-3h12v-6h-2M7 7h10v3l4-4l-4-4v3H5v6h2V7Z"/>
+                  <path d="m17 16.7h-10v-2.7l-4 4 4 4v-2.7h12.6v-6.3h-2.6m-10-5.7h10v2.7l4-4-4-4v2.7h-12.6v6.3h2.6z" fill="currentColor"/>
                 </svg>
               </button>
             </div>
@@ -104,7 +103,9 @@
               <span class="input-group-text custom-tab disabled" id="negative-prompt-button" onclick="switchPrompt(false);">Negative</span>
               <span style="width:100%"></span>
               <span class="input-group-text custom-tab" id="add-button" onclick="">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="1 1 14 14"><path fill="currentColor" d="M14 7H9V2H7v5H2v2h5v5h2V9h5V7z"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="1 1 14 14">
+                  <path d="m14 6.7h-4.7v-4.7h-2.6v4.7h-4.7v2.6h4.7v4.7h2.6v-4.7h4.7z" fill="currentColor"/>
+                </svg>
               </span>
             </div>
             <textarea class="prompt" placeholder="Prompt..." id="prompt" spellcheck="false"></textarea>
@@ -178,28 +179,141 @@
             <select class="custom-select" id="sampler">
               <option selected>Euler a</option>
               <option>DDIM</option>
-              <option>DPM++ 2M</option>
-              <option>DPM++ SDE</option>
+              <option>DPM++ 2M Karras</option>
+              <option>DPM++ SDE Karras</option>
             </select>
           </div>
         </div>
-        <div class="column structure endpoint">
+
+        <div class="column structure additional">
           <div class="input-group input-group-sm mb-2">
-            <div class="input-group-prepend">
-              <span class="input-group-text">Endpoint</span>
+            <div class="input-group-prepend prompt-tab-row">
+              <span class="input-group-text custom-tab" id="endpoint-button" onclick="switchSettings('endpoint');">Endpoint</span>
+              <span style="width:3px"></span>
+              <span class="input-group-text custom-tab disabled" id="highres-button" onclick="switchSettings('highres');">Highres</span>
+              <span style="width:3px"></span>
+              <span class="input-group-text custom-tab disabled" id="operation-button" onclick="switchSettings('operation');">Operation</span>
+              <span style="width:100%"></span>
             </div>
-            <input type="text" class="form-control custom-input" id="endpoint" placeholder="wss://endpoint.here">
-          </div>
-          <div class="input-group input-group-sm mb-2">
-            <div class="input-group-prepend">
-              <span class="input-group-text">Password</span>
-            </div>
-            <input type="text" class="form-control custom-input" id="password" placeholder="None">
-            <div class="input-group-append">
-              <button type="button" class="btn btn-outline-secondary inline-button" id="connect">
-                <svg id="icon-disconnected" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 26 26"><path fill="currentColor" d="M24.875 0a1 1 0 0 0-.594.281l-1.656 1.656c-2.204-1.59-5.261-1.305-7.313.657c0 .076-.855.91-1.624 1.656l-.97-.969a1 1 0 0 0-.812-.312a1 1 0 0 0-.125.031a1 1 0 0 0-.5 1.719L13.562 7l-3.28 3.281a1.016 1.016 0 1 0 1.437 1.438L15 8.438L17.563 11l-3.282 3.281a1.016 1.016 0 1 0 1.438 1.438L19 12.438l2.281 2.28a1.016 1.016 0 1 0 1.438-1.437l-.969-.969l1.656-1.624c1.96-1.96 2.159-5.008.625-7.282L25.72 1.72A1 1 0 0 0 24.875 0zM3.906 10.969a1 1 0 0 0-.125.031a1 1 0 0 0-.5 1.719l.969.969l-1.656 1.624c-1.96 1.96-2.159 5.008-.625 7.282L.28 24.28a1.016 1.016 0 1 0 1.44 1.44l1.656-1.657c2.204 1.592 5.261 1.306 7.313-.656c0-.076.855-.91 1.624-1.656l.97.969a1.016 1.016 0 1 0 1.437-1.438l-10-10a1 1 0 0 0-.813-.312z"/></svg>
-                <svg id="icon-connected" class="hidden" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 26 26"><path fill="currentColor" d="M24.875 0a1 1 0 0 0-.594.281l-4.656 4.657c-2.204-1.592-5.261-1.306-7.313.656c0 .076-.855.91-1.624 1.656l-.97-.969A1 1 0 0 0 8.782 6a1 1 0 0 0-.5 1.719l10 10a1.016 1.016 0 1 0 1.438-1.438l-.969-.968l1.656-1.626c1.96-1.96 2.159-5.007.625-7.28l4.688-4.688A1 1 0 0 0 24.875 0zM6.906 7.969A1 1 0 0 0 6.781 8a1 1 0 0 0-.5 1.719l.969.969l-1.656 1.624c-1.96 1.96-2.159 5.008-.625 7.282L.28 24.28a1.016 1.016 0 1 0 1.44 1.44l4.656-4.657c2.204 1.592 5.261 1.306 7.313-.656c0-.076.855-.91 1.624-1.656l.97.969a1.016 1.016 0 1 0 1.437-1.438l-10-10a1 1 0 0 0-.813-.312z"/></svg>
-              </button>
+            <div class="settings-container">
+              <div id="endpoint-column" class="">
+                <div class="input-group input-group-sm mb-2">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">Endpoint</span>
+                  </div>
+                  <input type="text" class="form-control custom-input" id="endpoint" placeholder="wss://endpoint.here">
+                </div>
+                <div class="input-group input-group-sm mb-2">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">Password</span>
+                  </div>
+                  <input type="text" class="form-control custom-input" id="password" placeholder="None">
+                  <div class="input-group-append">
+                    <button type="button" class="btn btn-outline-secondary inline-button" id="connect">
+                      <svg id="icon-disconnected" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 26 26"><path fill="currentColor" d="M24.875 0a1 1 0 0 0-.594.281l-1.656 1.656c-2.204-1.59-5.261-1.305-7.313.657c0 .076-.855.91-1.624 1.656l-.97-.969a1 1 0 0 0-.812-.312a1 1 0 0 0-.125.031a1 1 0 0 0-.5 1.719L13.562 7l-3.28 3.281a1.016 1.016 0 1 0 1.437 1.438L15 8.438L17.563 11l-3.282 3.281a1.016 1.016 0 1 0 1.438 1.438L19 12.438l2.281 2.28a1.016 1.016 0 1 0 1.438-1.437l-.969-.969l1.656-1.624c1.96-1.96 2.159-5.008.625-7.282L25.72 1.72A1 1 0 0 0 24.875 0zM3.906 10.969a1 1 0 0 0-.125.031a1 1 0 0 0-.5 1.719l.969.969l-1.656 1.624c-1.96 1.96-2.159 5.008-.625 7.282L.28 24.28a1.016 1.016 0 1 0 1.44 1.44l1.656-1.657c2.204 1.592 5.261 1.306 7.313-.656c0-.076.855-.91 1.624-1.656l.97.969a1.016 1.016 0 1 0 1.437-1.438l-10-10a1 1 0 0 0-.813-.312z"/></svg>
+                      <svg id="icon-connected" class="hidden" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 26 26"><path fill="currentColor" d="M24.875 0a1 1 0 0 0-.594.281l-4.656 4.657c-2.204-1.592-5.261-1.306-7.313.656c0 .076-.855.91-1.624 1.656l-.97-.969A1 1 0 0 0 8.782 6a1 1 0 0 0-.5 1.719l10 10a1.016 1.016 0 1 0 1.438-1.438l-.969-.968l1.656-1.626c1.96-1.96 2.159-5.007.625-7.28l4.688-4.688A1 1 0 0 0 24.875 0zM6.906 7.969A1 1 0 0 0 6.781 8a1 1 0 0 0-.5 1.719l.969.969l-1.656 1.624c-1.96 1.96-2.159 5.008-.625 7.282L.28 24.28a1.016 1.016 0 1 0 1.44 1.44l4.656-4.657c2.204 1.592 5.261 1.306 7.313-.656c0-.076.855-.91 1.624-1.656l.97.969a1.016 1.016 0 1 0 1.437-1.438l-10-10a1 1 0 0 0-.813-.312z"/></svg>
+                    </button>
+                  </div>
+                </div>
+                <div class="input-group input-group-sm mb-2">
+                  <div class="input-group-prepend input-group-normal">
+                    <select class="custom-select input-group-normal" id="download-type">
+                      <option selected>Checkpoint</option>
+                      <option>LoRA</option>
+                      <option>Embedding</option>
+                    </select>
+                  </div>
+                  <input type="text" class="form-control custom-input" id="download-url" placeholder="https://model.url">
+                  <div class="input-group-append">
+                    <button type="button" class="btn btn-outline-secondary inline-button" id="download">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="2 2 20 20"><path fill="currentColor" d="M19 9h-4V3H9v6H5l7 7l7-7zM5 18v2h14v-2H5z"/></svg>
+                    </button>
+                  </div>
+                </div>
+                <div id="download-holder" class="download-list-holder hidden">
+                  <table class="table table-striped modal-list">
+                    <tbody id="download-table" class="modal-table">
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div id="highres-column" class="hidden">
+                <div class="input-group input-group-sm mb-2">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">Factor</span>
+                  </div>
+                  <div class="form-control">
+                    <input class="form-control custom-range" id="highres" oninput="syncLabels();" type="range" value="1" min="1" max="2" step="0.05">
+                  </div>
+                  <div class="input-group-append">
+                    <span class="input-group-text text-fixed-wide" id="highres-label">1.00</span>
+                  </div>
+                </div>
+                <div class="input-group input-group-sm mb-2">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">Strength</span>
+                  </div>
+                  <div class="form-control">
+                    <input class="form-control custom-range" id="strength" oninput="syncLabels();" type="range" value="0.7" min="0" max="1" step="0.05">
+                  </div>
+                  <div class="input-group-append">
+                    <span class="input-group-text text-fixed-wide" id="strength-label">0.70</span>
+                  </div>
+                </div>
+                <div class="input-group input-group-sm mb-2">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">Upscaler</span>
+                  </div>
+                  <select class="custom-select" id="upscaler">
+                    <option selected>Lanczos</option>
+                  </select>
+                </div>
+              </div>
+
+              <div id="operation-column" class="hidden">
+                <div class="input-group input-group-sm mb-2">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">CLIP Skip</span>
+                  </div>
+                  <div class="form-control">
+                    <input class="form-control custom-range" id="clip-skip" oninput="syncLabels();" type="range" value="1" min="1" max="3">
+                  </div>
+                  <div class="input-group-append">
+                    <span class="input-group-text text-fixed" id="clip-skip-label">1</span>
+                  </div>
+                </div>
+                <div class="input-group input-group-sm mb-2">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">Network Mode</span>
+                  </div>
+                  <select class="custom-select" id="network-mode">
+                    <option selected>Dynamic</option>
+                    <option>Static</option>
+                  </select>
+                </div>
+                <div class="input-group input-group-sm mb-2">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">Prediction</span>
+                  </div>
+                  <select class="custom-select" id="prediction">
+                    <option selected>Default</option>
+                    <option>Epsilon</option>
+                    <option>V</option>
+                  </select>
+                </div>
+                <div class="input-group input-group-sm mb-2">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">CFG Rescale</span>
+                  </div>
+                  <div class="form-control">
+                    <input class="form-control custom-range" id="cfg-rescale" oninput="syncLabels();" type="range" value="0.0" min="0" max="1" step="0.05">
+                  </div>
+                  <div class="input-group-append">
+                    <span class="input-group-text text-fixed-wide" id="cfg-rescale-label">0.0</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -236,9 +350,43 @@
       }
     }
 
+    function switchSettings(value) {
+      $("#endpoint-button").addClass("disabled");
+      $("#highres-button").addClass("disabled");
+      $("#operation-button").addClass("disabled");
+      $("#" + value + "-button").removeClass("disabled");
+
+      $("#endpoint-column").addClass("hidden");
+      $("#highres-column").addClass("hidden");
+      $("#operation-column").addClass("hidden");
+      $("#" + value + "-column").removeClass("hidden");
+    }
+
+    function setProgress(elem, progress) {
+      if(progress == -1) {
+        elem.children("svg").eq(0).addClass("hidden")
+        elem.children("svg").eq(1).addClass("hidden")
+        elem.children("svg").eq(2).removeClass("hidden")
+        return;
+      }
+      if(progress == 1) {
+        elem.children("svg").eq(0).addClass("hidden")
+        elem.children("svg").eq(1).removeClass("hidden")
+        elem.children("svg").eq(2).addClass("hidden")
+        return
+      }
+      const t = 251.2
+      var v = t * progress;
+      elem.children("svg").eq(0).children("path").eq(1).attr("stroke-dasharray", v+","+(t-v));
+    }
+
     function syncLabels() {
       $("#steps-label").text($("#steps").val())
       $("#scale-label").text($("#scale").val())
+      $("#highres-label").text(parseFloat($("#highres").val()).toFixed(2))
+      $("#strength-label").text(parseFloat($("#strength").val()).toFixed(2))
+      $("#clip-skip-label").text($("#clip-skip").val())
+      $("#cfg-rescale-label").text(parseFloat($("#cfg-rescale").val()).toFixed(2))
     }
 
     function randomizeSeed() {
@@ -291,6 +439,8 @@
     var preview = false
     var forever = false
     var id
+
+    var downloads = {}
 
     function switchConnected(value) {
       if(value) {
@@ -436,6 +586,9 @@
           switchWorking(false);
           switchConnected(true);
           break;
+        case "download":
+          await handleDownload(data, msg.id);
+          break;
         default:
           console.log(msg)
       }
@@ -517,6 +670,32 @@
       $('#negative-prompt').highlightWithinTextarea('update');
       
       await setModels(Object.keys(models));
+    }
+
+    async function handleDownload(data, id) {
+      if(!(id in downloads)) {
+        return
+      }
+      var entry = $("#"+id);
+      var name = entry.children("td").eq(0).children("div").eq(0);
+      var progress = entry.children("td").eq(1);
+      switch(data.status) {
+        case "started":
+          name.text(data.label);
+          break;
+        case "progress":
+          setProgress(progress, data.progress);
+          break;
+        case "success":
+          setProgress(progress, 1.0);
+          sendMessage({"type":"options"});
+          break;
+        case "error":
+          setProgress(progress, -1.0);
+          break;
+        default:
+          break;
+      }
     }
 
     function setResult(data) {
@@ -641,20 +820,29 @@
           "seed": parseInt(seed),
           "sampler": $("#sampler option:selected").text(),
           "prompt": [[[$("#prompt").val()], [$("#negative-prompt").val()]]],
-          "clip_skip": 1,
-          "batch_size": 1,
+          "clip_skip": parseInt($("#clip-skip").val()),
+          "network_mode": $("#network-mode option:selected").text(),
+          "cfg_rescale": parseFloat($("#cfg-rescale").val()),
+          "prediction": $("#prediction option:selected").text(),
           "unet": model,
           "clip": model,
           "vae": model,
+          "batch_size": 1,
           "attention": "Default",
           "vram_mode": "Default",
           "preview_interval": 1,
           "show_preview": "Medium",
-          "network_mode": "Dynamic",
           "autocast": false,
           "tiling_mode": "Disabled",
         },
         "id": Math.floor(Math.random() * 1000000) + 1
+      }
+
+      var hr = parseFloat($("#highres").val())
+      if(hr > 1.0) {
+        request.data["hr_factor"] = hr;
+        request.data["hr_strength"] = parseFloat($("#strength").val());
+        request.data["hr_upscaler"] = $("#upscaler option:selected").text();
       }
 
       id = request.id;
@@ -674,6 +862,49 @@
       } else {
         $("#forever").removeClass("btn-toggled");
       }
+    });
+
+    $("#download").on("click", async function () {
+      if(ws == undefined || ws.readyState != 1) {
+        glow("#download", "glow-failed")
+        return
+      }
+
+      const map = {"Checkpoint":"SD", "LoRA":"LoRA", "Embedding":"TI", "Upscaler":"SR"}
+      var type = map[$("#download-type option:selected").text()];
+      var url = $("#download-url").val();
+
+      var request = {
+        "type": "download",
+        "data": {
+          "type": type,
+          "url": url
+        },
+        "id": Math.floor(Math.random() * 1000000) + 1
+      }
+
+      await sendMessage(request);
+
+      var entry = $(`
+      <tr id="`+request.id+`">
+        <td><div class="td-text">`+url+`</div></td>
+        <td class="td-additional">
+          <svg class="download-icon" width="16" height="16" viewbox="-5 -5 110 110">
+            <path fill="none" stroke-linecap="butt" stroke-width="30" stroke="black" stroke-opacity="0.25" d="M50 10 a 40 40 0 0 1 0 80 a 40 40 0 0 1 0 -80"></path>
+            <path fill="none" stroke-linecap="butt" stroke-width="30" stroke="currentColor" stroke-dasharray="0,251.2" stroke-opacity="0.9" d="M50 10 a 40 40 0 0 1 0 80 a 40 40 0 0 1 0 -80"></path>
+          </svg>
+          <svg class="download-icon hidden" width="16" height="16" viewBox="2 2 20 20">
+            <path fill="currentColor" d="m9 20.42l-6.21-6.21l2.83-2.83L9 14.77l9.88-9.89l2.83 2.83L9 20.42Z"/>
+          </svg>
+          <svg class="download-icon hidden" width="16" height="16" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M12.884 2.532c-.346-.654-1.422-.654-1.768 0l-9 17A.999.999 0 0 0 3 21h18a.998.998 0 0 0 .883-1.467L12.884 2.532zM13 18h-2v-2h2v2zm-2-4V9h2l.001 5H11z"/>
+          </svg>
+        </td>
+      </tr>
+      `);
+      $("#download-table").append(entry);
+      $("#download-holder").removeClass("hidden");
+      downloads[request.id] = {}
     });
 
     $("#error-modal").on("hidden.bs.modal", function (e) {
@@ -711,7 +942,7 @@
 
           html: {
             isCustomSVG: true,
-            inner: '<path d="M20.5 14.3 17.1 18V10h-2.2v7.9l-3.4-3.6L10 16l6 6.1 6-6.1ZM23 23H9v2h14Z" id="pswp__icn-download"/>',
+            inner: '<path d="m22.595 14.46h-4v-6h-6v6h-4l7 7zm-14 9v2h14v-2z" id="pswp__icn-download"/>',
             outlineID: 'pswp__icn-download'
           },
 
