@@ -822,6 +822,7 @@ mark {
   overflow: -moz-scrollbars-vertical;
   overflow-y: scroll;
   font-size: 0.7rem;
+  min-height: 2rem;
 }
 
 .td-additional {
@@ -839,4 +840,8 @@ mark {
 .download-icon {
   margin: auto;
   width: 100%;
+}
+
+.input-group-center {
+  margin: auto;
 }

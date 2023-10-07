@@ -123,7 +123,7 @@
             <div class="input-group-prepend">
               <span class="input-group-text">Resolution</span>
             </div>
-            <select class="custom-select" id="resolution">
+            <select class="custom-select" id="resolution" onchange="syncLabels();">
               <option selected>512x512</option>
               <option value="1">512x640</option>
               <option value="2">640x512</option>
@@ -221,6 +221,7 @@
                       <option selected>Checkpoint</option>
                       <option>LoRA</option>
                       <option>Embedding</option>
+                      <option>Upscaler</option>
                     </select>
                   </div>
                   <input type="text" class="form-control custom-input" id="download-url" placeholder="https://model.url">
@@ -230,7 +231,7 @@
                     </button>
                   </div>
                 </div>
-                <div id="download-holder" class="download-list-holder hidden">
+                <div id="download-holder" class="download-list-holder">
                   <table class="table table-striped modal-list">
                     <tbody id="download-table" class="modal-table">
                     </tbody>
@@ -268,6 +269,12 @@
                   <select class="custom-select" id="upscaler">
                     <option selected>Lanczos</option>
                   </select>
+                </div>
+
+                <div class="input-group input-group-sm mb-2">
+                  <div class="input-group-prepend input-group-center">
+                    <span class="input-group-text" id="final-resolution">512x512</span>
+                  </div>
                 </div>
               </div>
 
@@ -387,6 +394,13 @@
       $("#strength-label").text(parseFloat($("#strength").val()).toFixed(2))
       $("#clip-skip-label").text($("#clip-skip").val())
       $("#cfg-rescale-label").text(parseFloat($("#cfg-rescale").val()).toFixed(2))
+
+      var factor = parseFloat($("#highres").val());
+      var resolution = $("#resolution option:selected").text().split("x");
+      var width = Math.floor(parseInt(resolution[0]) * factor);
+      var height = Math.floor(parseInt(resolution[1]) * factor);
+
+      $("#final-resolution").text(width+"x"+height);
     }
 
     function randomizeSeed() {
@@ -430,6 +444,7 @@
     var models
     var loras = []
     var embeddings = []
+    var upscalers
     var selected
 
     var results = []
@@ -495,6 +510,18 @@
           entry.prop('selected', true);
         }
         $("#model").append(entry);
+      });
+    }
+
+    async function setUpscalers(models) {
+      var current = $("#upscaler option:selected").text()
+      $('#upscaler option').remove();
+      $.each(models, function(val, text) {
+        var entry = $('<option></option>').val(val).html(text)
+        if(text == current) {
+          entry.prop('selected', true);
+        }
+        $("#upscaler").append(entry);
       });
     }
 
@@ -605,6 +632,7 @@
         var name = getName(entry);
         models[name] = entry;
       })
+      await setModels(Object.keys(models));
 
       loras = []
       var lora_tbl = $("#lora-table").empty()
@@ -668,8 +696,13 @@
 
       $('#prompt').highlightWithinTextarea('update');
       $('#negative-prompt').highlightWithinTextarea('update');
-      
-      await setModels(Object.keys(models));
+
+      upscalers = {"Lanczos":"Lanczos"}
+      $.map(data.SR, function(entry) {
+        var name = getName(entry);
+        upscalers[name] = entry;
+      })
+      await setUpscalers(Object.keys(upscalers));
     }
 
     async function handleDownload(data, id) {
@@ -842,7 +875,7 @@
       if(hr > 1.0) {
         request.data["hr_factor"] = hr;
         request.data["hr_strength"] = parseFloat($("#strength").val());
-        request.data["hr_upscaler"] = $("#upscaler option:selected").text();
+        request.data["hr_upscaler"] = upscalers[$("#upscaler option:selected").text()];
       }
 
       id = request.id;
@@ -851,7 +884,13 @@
       await sendMessage(request);
     }
 
-    $("#connect").on("click", async function () { await doConnect(); });
+    $("#connect").on("click", async function () { 
+      const urlParams = new URLSearchParams();
+      urlParams.set("endpoint", $("#endpoint").val());
+      urlParams.set("password", $("#password").val());
+      window.history.pushState({}, "qDiffusion Web", "/?"+urlParams.toString());
+      await doConnect(); 
+    });
 
     $("#generate").on("click", async function () { await doGenerate(); });
 
