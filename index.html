@@ -708,6 +708,10 @@
         upscalers[name] = entry;
       })
       await setUpscalers(Object.keys(upscalers));
+
+      if(data.device.length == 0 || (data.device.length == 1 && data.device[0] == "CPU")) {
+        showError("Error", "Backend has no GPU available.\n(Ran out of Colab GPU time for today?)");
+      }
     }
 
     async function handleDownload(data, id) {
