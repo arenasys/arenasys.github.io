@@ -441,10 +441,10 @@
     var ws
     var key
 
-    var models
+    var models = {}
     var loras = []
     var embeddings = []
-    var upscalers
+    var upscalers = {}
     var selected
 
     var results = []
@@ -453,6 +453,7 @@
     var working = false
     var preview = false
     var forever = false
+    var waiting = false
     var id
 
     var downloads = {}
@@ -578,12 +579,16 @@
           sendMessage({"type":"options"})
           break;
         case "ack":
-          if(data.queue > 0 && data.id == id) {
+          if(data.queue > 0 && (data.id == id || models)) {
             setStatusMode("waiting")
             setStatusMessage("Waiting");
+            waiting = true;
           }
           break;
         case "options":
+          if(waiting) {
+            switchConnected(true);
+          }
           handleOptions(data)
           break;
         case "result":
@@ -777,13 +782,12 @@
       try {
         ws = new WebSocket($("#endpoint").val());
       } catch(error) {
-        showError("Invalid Endpoint");
+        showError("Error", "Invalid Endpoint.");
         return
       }
+      var success = false;
       return new Promise((resolve, reject) => {
         ws.onopen = async function() {
-          switchConnected(true);
-          glow("#connect", "glow-success")
           key = undefined;
           resolve();
         };
@@ -810,9 +814,16 @@
           if (event.data instanceof Blob) {
             try {
               const msg = await decrypt(key, await event.data.arrayBuffer());
+              if(!success) {
+                glow("#connect", "glow-success");
+                switchConnected(true);
+                success = true;
+              }
               handleMessage(msg)
             } catch(error) {
-              showError("Incorrect password");
+              glow("#connect", "glow-failed");
+              showError("Error", "Incorrect password.");
+              ws.close()
             }
           }
         };
@@ -822,6 +833,11 @@
     async function doGenerate() {
       if(ws == undefined || ws.readyState != 1) {
         glow("#generate", "glow-failed")
+        return
+      }
+
+      if(Object.keys(models).length == 0) {
+        showError("Error", "No models found.");
         return
       }
       
