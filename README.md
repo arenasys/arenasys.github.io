@@ -26,4 +26,5 @@ qDiffusion users can host a server to share their hardware with other people or 
 ### Getting Models
 No models are downloaded by default. The bottom most row under Endpoint lets you download models.
 ![download](https://github.com/arenasys/arenasys.github.io/raw/master/download.png)
+
 Paste your URL, select the correct model type and hit download. On Civit.ai make sure you copy the download button's address not the pages address. For example AnythingV3: `https://civitai.com/api/download/models/75?type=Model&format=PickleTensor&size=full&fp=fp16`. More information about supported URLs is available [here](https://github.com/arenasys/qDiffusion/wiki/Guide#downloading).
