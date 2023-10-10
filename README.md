@@ -1,6 +1,8 @@
-## Web GUI for sd-inference-server
---------
-Built for mobile users.
+## qDiffusion Web
+
+Built for mobile-only users wanting to leverage [sd-inference-server](https://github.com/arenasys/sd-inference-server/), the backend server for [qDiffusion](https://github.com/arenasys/qDiffusion). 
+
+----
 ![example](https://github.com/arenasys/arenasys.github.io/raw/master/screenshot.png)
 
 ### Colab
