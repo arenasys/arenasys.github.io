@@ -14,7 +14,9 @@ Notebooks for running a remote instance are available: [Colab](https://colab.res
 	- Rejecting will mean models are local, you will need to download them again next time.
 4. Wait for the requirements to be downloaded and the server to start.
 5. Open the web link.
-6. Done. See below for how to get models onto the instance.
+6. Done. See further below for how to get models onto the instance.
+	- Remake the instance with `Runtime->Disconnect and delete runtime`, close the tab, then start from Step 1.
+	- If issues persist after a remake it could be the cloudflare tunnel is down, check [Here](https://www.cloudflarestatus.com/).
 
 ### Hosting
 qDiffusion users can host a server to share their hardware with other people or devices.
