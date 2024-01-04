@@ -891,6 +891,14 @@
         "id": Math.floor(Math.random() * 1000000) + 1
       }
 
+      if(request["data"]["prediction_type"] == "default") {
+        delete request["data"]["prediction_type"]
+      }
+
+      if(request["data"]["cfg_rescale"] == 0.0) {
+        delete request["data"]["cfg_rescale"]
+      }
+
       var hr = parseFloat($("#highres").val())
       if(hr > 1.0) {
         request.data["hr_factor"] = hr;
