@@ -798,6 +798,7 @@
 
         ws.onerror = async function(event) {
           glow("#connect", "glow-failed")
+          console.log(event)
         }
 
         ws.onclose = async function() {
