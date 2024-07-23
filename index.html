@@ -121,28 +121,32 @@
           </div>
           <div class="input-group input-group-sm mb-2">
             <div class="input-group-prepend">
-              <span class="input-group-text">Resolution</span>
+              <span class="input-group-text">Width</span>
             </div>
-            <select class="custom-select" id="resolution" onchange="syncLabels();">
-              <option selected>512x512</option>
-              <option value="1">512x640</option>
-              <option value="2">640x512</option>
-              <option value="3">640x640</option>
-              <option value="4">640x768</option>
-              <option value="5">768x640</option>
-              <option value="6">768x768</option>
-              <option value="7">768x960</option>
-              <option value="8">960x768</option>
-              <option value="9">960x960</option>
-
-            </select>
+            <div class="form-control">
+              <input class="form-control custom-range" id="width" oninput="syncLabels();" type="range" value="512" min="512" max="2048" step="128">
+            </div>
+            <div class="input-group-append">
+              <span class="input-group-text text-fixed" id="width-label">512</span>
+            </div>
+          </div>
+          <div class="input-group input-group-sm mb-2">
+            <div class="input-group-prepend">
+              <span class="input-group-text">Height</span>
+            </div>
+            <div class="form-control">
+              <input class="form-control custom-range" id="height" oninput="syncLabels();" type="range" value="512" min="512" max="2048" step="128">
+            </div>
+            <div class="input-group-append">
+              <span class="input-group-text text-fixed" id="height-label">512</span>
+            </div>
           </div>
           <div class="input-group input-group-sm mb-2">
             <div class="input-group-prepend">
               <span class="input-group-text">Steps</span>
             </div>
             <div class="form-control">
-              <input class="form-control custom-range" id="steps" oninput="syncLabels();" type="range" value="25" min="10" max="50">
+              <input class="form-control custom-range" id="steps" oninput="syncLabels();" type="range" value="25" min="10" max="100">
             </div>
             <div class="input-group-append">
               <span class="input-group-text text-fixed" id="steps-label">25</span>
@@ -153,7 +157,7 @@
               <span class="input-group-text">Scale</span>
             </div>
             <div class="form-control">
-              <input class="form-control custom-range" id="scale" oninput="syncLabels();" type="range" value="7" min="5" max="15">
+              <input class="form-control custom-range" id="scale" oninput="syncLabels();" type="range" value="7" min="1" max="20">
             </div>
             <div class="input-group-append">
               <span class="input-group-text text-fixed" id="scale-label">7</span>
@@ -390,15 +394,16 @@
     function syncLabels() {
       $("#steps-label").text($("#steps").val())
       $("#scale-label").text($("#scale").val())
+      $("#width-label").text($("#width").val())
+      $("#height-label").text($("#height").val())
       $("#highres-label").text(parseFloat($("#highres").val()).toFixed(2))
       $("#strength-label").text(parseFloat($("#strength").val()).toFixed(2))
       $("#clip-skip-label").text($("#clip-skip").val())
       $("#cfg-rescale-label").text(parseFloat($("#cfg-rescale").val()).toFixed(2))
 
       var factor = parseFloat($("#highres").val());
-      var resolution = $("#resolution option:selected").text().split("x");
-      var width = Math.floor(parseInt(resolution[0]) * factor);
-      var height = Math.floor(parseInt(resolution[1]) * factor);
+      var width = Math.floor(parseInt($("#width").val()) * factor);
+      var height = Math.floor(parseInt($("#height").val()) * factor);
 
       $("#final-resolution").text(width+"x"+height);
     }
@@ -857,7 +862,6 @@
         return;
       }
 
-      var resolution = $("#resolution option:selected").text().split("x")
       var seed = $("#seed").val()
       if(seed == "") {
         seed = "-1"
@@ -867,8 +871,8 @@
       var request = {
         "type": "txt2img",
         "data": {
-          "width": parseInt(resolution[0]),
-          "height": parseInt(resolution[1]),
+          "width": parseInt($("#width").val()),
+          "height": parseInt($("#height").val()),
           "steps": parseInt($("#steps").val()),
           "scale": parseFloat($("#scale").val()),
           "seed": parseInt(seed),
